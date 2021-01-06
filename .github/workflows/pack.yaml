@@ -3,6 +3,7 @@ name: pack-sample
 on:
   push:
     branches:
+      - "master"
       - "[0-9]+.[0-9]+.[0-9]+"
     tags:
       - v[0-9]+.[0-9]+*
@@ -24,6 +25,7 @@ jobs:
         with:
           fetch-depth: 0
 
+      # https://buildpacks.io/docs/tools/pack/
       - run: |
           sudo add-apt-repository ppa:cncf-buildpacks/pack-cli
           sudo apt-get update
