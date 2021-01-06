@@ -1,0 +1,31 @@
+name: pack-sample
+
+on:
+  push:
+    branches:
+      - "[0-9]+.[0-9]+.[0-9]+"
+    tags:
+      - v[0-9]+.[0-9]+*
+
+#env:
+     
+jobs:
+  deploy:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2 # https://github.com/actions/checkout
+        with:
+          fetch-depth: 0
+
+      - run: |
+          sudo add-apt-repository ppa:cncf-buildpacks/pack-cli
+          sudo apt-get update
+          sudo apt-get install pack-cli
+
