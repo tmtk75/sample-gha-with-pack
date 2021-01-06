@@ -8,8 +8,6 @@ on:
     tags:
       - v[0-9]+.[0-9]+*
 
-#env:
-     
 jobs:
   deploy:
     runs-on: ${{ matrix.os }}
@@ -26,8 +24,28 @@ jobs:
           fetch-depth: 0
 
       # https://buildpacks.io/docs/tools/pack/
-      - run: |
+      - name: install pack
+        run: |
           sudo add-apt-repository ppa:cncf-buildpacks/pack-cli
           sudo apt-get update
           sudo apt-get install pack-cli
 
+      - name: build container image
+        run: |
+          pack build myapp:1 --builder paketobuildpacks/builder:tiny
+
+      - name: publish
+        run: |
+          echo "${DOCKER_PASSWORD2}" \
+            | docker login "${DOCKER_HOST2}" \
+              --username "${DOCKER_USERNAME2}" \
+              --password-stdin
+          docker tag myapp:1 ${DOCKER_HOST2}/${DOCKER_REPO_NAME2}myapp:1
+          docker push ${DOCKER_HOST2}/${DOCKER_REPO_NAME2}myapp:1
+        env:
+          # Avoid to declare DOCKER_HOST environment variable
+          # since docker and pack commands are aware of DOCKER_HOST.
+          DOCKER_HOST2: ${{ secrets.DOCKER_HOST }}
+          DOCKER_USERNAME2: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD2: ${{ secrets.DOCKER_PASSWORD }}
+          DOCKER_REPO_NAME2: ${{ secrets.DOCKER_REPO_NAME }}
